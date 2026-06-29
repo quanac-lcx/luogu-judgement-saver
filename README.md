@@ -23,7 +23,7 @@ npm install
 npm start
 ```
 
-启动后访问 http://localhost:3000/judgement 查看记录。
+启动后访问 http://localhost:3456/judgement 查看记录。
 
 ---
 
@@ -158,7 +158,7 @@ server {
     server_name judgement.example.com;   # 替换为你的域名
 
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3456;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -263,3 +263,4 @@ sudo certbot --nginx -d judgement.example.com
 ## License
 
 AGPL-3.0
+
