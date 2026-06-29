@@ -158,7 +158,7 @@ server {
     server_name judgement.example.com;   # 替换为你的域名
 
     location / {
-        proxy_pass http://127.0.0.1:3456;
+        proxy_pass http://127.0.0.1:3457;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';

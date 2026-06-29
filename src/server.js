@@ -9,7 +9,7 @@ const {
 } = require('./db');
 
 const app = express();
-const PORT = process.env.PORT || 3456;
+const PORT = process.env.PORT || 3457;
 
 // JSON 中间件
 app.use(express.json());
