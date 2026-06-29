@@ -23,7 +23,7 @@ npm install
 npm start
 ```
 
-启动后访问 http://localhost:3456/judgement 查看记录。
+启动后访问 http://localhost:3457/judgement 查看记录。
 
 ---
 
