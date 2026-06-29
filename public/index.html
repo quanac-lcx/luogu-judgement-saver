@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>洛谷陶片放逐</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <h1>洛谷陶片放逐</h1>
+  <p class="sub" id="sub">加载中…</p>
+
+  <nav>
+    <a href="#" id="nav-j" class="on" onclick="showTab('j')">记录</a>
+    <a href="#" id="nav-l" onclick="showTab('l')">日志</a>
+    <a href="#" id="nav-a" onclick="showTab('a')">API</a>
+    <a href="#" id="nav-b" onclick="showTab('b')">关于</a>
+  </nav>
+
+  <div id="j-filter" class="filter" style="flex-wrap:wrap">
+    <input type="number" id="f-uid" placeholder="UID…" onkeydown="if(event.key==='Enter')loadJ()" style="width:70px">
+    <input type="text" id="f-name" placeholder="用户名…" onkeydown="if(event.key==='Enter')loadJ()" style="width:100px">
+    <span id="perm-toggle" onclick="document.getElementById('perm-panel').classList.toggle('show')"
+      style="font-size:.85rem;color:#888;cursor:pointer;user-select:none;border:1px solid #ccc;padding:4px 8px">权限
+      ▸</span>
+    <button onclick="loadJ()">搜索</button>
+    <button
+      onclick="document.getElementById('f-uid').value='';document.getElementById('f-name').value='';jPage=1;clearPerms();loadJ()">清除</button>
+    <span style="font-size:.85rem;color:#888;margin-left:12px">每页：</span>
+    <select onchange="LIMIT=+this.value;jPage=1;loadJ()">
+      <option value="20">20</option>
+      <option value="50" selected>50</option>
+      <option value="100">100</option>
+      <option value="200">200</option>
+      <option value="500">500</option>
+    </select>
+  </div>
+  <div id="perm-panel" class="perm-panel">
+    <div class="perm-col">
+      <b style="color:#c00">移除</b>
+      <div id="perm-rev"></div>
+    </div>
+    <div class="perm-col">
+      <b style="color:#168f16">添加</b>
+      <div id="perm-add"></div>
+    </div>
+  </div>
+
+  <div id="l-filter" class="filter" style="display:none">
+    <span style="font-size:.85rem;color:#888">每页：</span>
+    <select onchange="LIMIT=+this.value;lPage=1;loadL()">
+      <option value="20">20</option>
+      <option value="50" selected>50</option>
+      <option value="100">100</option>
+      <option value="200">200</option>
+      <option value="500">500</option>
+    </select>
+  </div>
+
+  <div id="content">
+    <div class="loading">加载中…</div>
+  </div>
+  <div class="foot" id="pager"></div>
+
+  <footer>luogu-judgement-saver</footer>
+
+  <script>
+    const PERM_MAP = [
+      { id: 1, name: "登录鉴权" },
+      { id: 2, name: "进入主站" },
+      { id: 4, name: "进入后台" },
+      { id: 8, name: "题目管理" },
+      { id: 16, name: "团队管理" },
+      { id: 32, name: "比赛管理" },
+      { id: 64, name: "秩序管理" },
+      { id: 128, name: "未知权限#128" },
+      { id: 256, name: "用户管理" },
+      { id: 512, name: "专栏管理" },
+      { id: 32768, name: "自由发言" },
+      { id: 65536, name: "发送私信" },
+      { id: 131072, name: "使用专栏" },
+      { id: 262144, name: "未知权限#262144" },
+      { id: 524288, name: "使用图床" },
+      { id: 2097152, name: "题库志愿者" },
+      { id: 4194304, name: "专栏志愿者" },
+      { id: 1073741824, name: "超级用户" },
+    ];
+
+    function formatPerms(val, prefix) {
+      if (!val) return '';
+      const names = [];
+      let remaining = val;
+      for (let i = PERM_MAP.length - 1; i >= 0; i--) {
+        const p = PERM_MAP[i];
+        if ((remaining & p.id) === p.id) {
+          names.unshift(p.name);
+          remaining -= p.id;
+        }
+      }
+      if (!names.length) names.push('未知权限');
+      return `<span class="perm ${prefix === '−' ? 'perm-rev' : 'perm-add'}" title="${prefix}${val}">${names.join(', ')}</span> `;
+    }
+
+    let tab = 'j', jPage = 1, lPage = 1, LIMIT = 50;
+
+    (function popPerm() {
+      const cRev = document.getElementById('perm-rev');
+      const cAdd = document.getElementById('perm-add');
+      for (const p of PERM_MAP) {
+        cRev.appendChild(makeCb(p, 'rev'));
+        cAdd.appendChild(makeCb(p, 'add'));
+      }
+      function makeCb(p, kind) {
+        const l = document.createElement('label');
+        l.style.cssText = 'display:block;font-size:.82rem;cursor:pointer;margin:2px 0';
+        l.innerHTML = `<input type="checkbox" value="${p.id}" data-kind="${kind}" onchange="jPage=1;loadJ()"> ${p.name}`;
+        return l;
+      }
+    })();
+
+    function clearPerms() {
+      document.querySelectorAll('#perm-rev input,#perm-add input').forEach(c => c.checked = false);
+    }
+
+    function getPermFilter() {
+      const rev = [], add = [];
+      document.querySelectorAll('#perm-rev input:checked').forEach(c => rev.push(+c.value));
+      document.querySelectorAll('#perm-add input:checked').forEach(c => add.push(+c.value));
+      let q = '';
+      if (rev.length) q += '&rev_perm=' + rev.join(',');
+      if (add.length) q += '&add_perm=' + add.join(',');
+      return q;
+    }
+
+    async function init() {
+      const r = await fetch('/api/stats').then(d => d.json());
+      if (r.success) document.getElementById('sub').textContent = `共 ${r.data.total_judgements} 条记录 · ${r.data.total_fetch_logs} 次抓取`;
+      loadJ();
+    }
+    setInterval(init, 60000);
+
+    function showTab(t) {
+      tab = t;
+      document.getElementById('nav-j').className = t === 'j' ? 'on' : '';
+      document.getElementById('nav-l').className = t === 'l' ? 'on' : '';
+      document.getElementById('nav-a').className = t === 'a' ? 'on' : '';
+      document.getElementById('nav-b').className = t === 'b' ? 'on' : '';
+      document.getElementById('j-filter').style.display = t === 'j' ? 'flex' : 'none';
+      document.getElementById('l-filter').style.display = t === 'l' ? 'flex' : 'none';
+      const pp = document.getElementById('perm-panel');
+      if (t !== 'j') pp.classList.remove('show');
+      if (t === 'j') { jPage = 1; loadJ(); }
+      else if (t === 'l') { lPage = 1; loadL(); }
+      else if (t === 'a') loadA();
+      else loadB();
+    }
+
+    async function loadJ() {
+      const c = document.getElementById('content');
+      c.innerHTML = '<div class="loading">加载中…</div>';
+      const uid = document.getElementById('f-uid').value;
+      const name = document.getElementById('f-name').value.trim();
+      const permQ = getPermFilter();
+      let url = `/api/judgement?page=${jPage}&limit=${LIMIT}`;
+      if (uid) url += `&uid=${uid}`;
+      if (name) url += `&name=${encodeURIComponent(name)}`;
+      if (permQ) url += permQ;
+      const r = await fetch(url).then(d => d.json());
+      if (!r.success) { c.innerHTML = `<div class="empty">${r.error}</div>`; return; }
+      if (!r.data.length) { c.innerHTML = '<div class="empty">无数据</div>'; pager(r.pagination, 'J'); return; }
+      let h = '<table><thead><tr><th>UID</th><th>头像</th><th>用户名</th><th>权限变更</th><th>原因</th><th>时间</th></tr></thead><tbody>';
+      for (const x of r.data) {
+        const d = new Date(x.time * 1000).toLocaleString('zh-CN');
+        let perm = '';
+        if (x.revoked_permission) perm += formatPerms(x.revoked_permission, '−');
+        if (x.added_permission) perm += formatPerms(x.added_permission, '+');
+        if (!perm) perm = '—';
+        h += `<tr><td class="uid"><a href="https://www.luogu.com.cn/user/${x.uid}" target="_blank">${x.uid}</a></td><td class="avatar"><a href="https://www.luogu.com.cn/user/${x.uid}" target="_blank"><img src="https://cdn.luogu.com.cn/upload/usericon/${x.uid}.png" alt="" loading="lazy"></a></td><td><a href="https://www.luogu.com.cn/user/${x.uid}" target="_blank">${esc(x.name)}</a></td><td>${perm}</td><td class="reason" title="${esc(x.reason || '')}">${esc(x.reason || '—')}</td><td class="time">${d}</td></tr>`;
+      }
+      h += '</tbody></table>';
+      c.innerHTML = h;
+      pager(r.pagination, 'J');
+    }
+
+    async function loadL() {
+      const c = document.getElementById('content');
+      c.innerHTML = '<div class="loading">加载中…</div>';
+      const r = await fetch(`/api/logs?page=${lPage}&limit=${LIMIT}`).then(d => d.json());
+      if (!r.success) { c.innerHTML = `<div class="empty">${r.error}</div>`; return; }
+      if (!r.data.length) { c.innerHTML = '<div class="empty">无日志</div>'; pager(r.pagination, 'L'); return; }
+      let h = '<table><thead><tr><th>ID</th><th>时间</th><th>记录数</th><th>状态</th><th>备注</th></tr></thead><tbody>';
+      for (const x of r.data) {
+        const s = x.status === 'success' ? '<span class="perm-add">成功</span>' : '<span class="perm-rev">失败</span>';
+        h += `<tr><td>${x.id}</td><td class="time">${x.fetched_at}</td><td>${x.record_count}</td><td>${s}</td><td>${esc(x.error_message || '—')}</td></tr>`;
+      }
+      h += '</tbody></table>';
+      c.innerHTML = h;
+      pager(r.pagination, 'L');
+    }
+
+    function pager(p, type) {
+      const el = document.getElementById('pager');
+      if (p.total_pages <= 1) { el.innerHTML = ''; return; }
+      const fn = type === 'J' ? 'loadJ()' : 'loadL()';
+      el.innerHTML =
+        (p.page > 1 ? `<a href="#" onclick="${type === 'J' ? 'jPage--' : 'lPage--'};${fn};return false">← 上一页</a>` : '<span></span>') +
+        `<span>第 ${p.page}/${p.total_pages} 页（共 ${p.total} 条）</span>` +
+        (p.page < p.total_pages ? `<a href="#" onclick="${type === 'J' ? 'jPage++' : 'lPage++'};${fn};return false">下一页 →</a>` : '<span></span>');
+    }
+
+    function loadA() {
+      document.getElementById('j-filter').style.display = 'none';
+      document.getElementById('l-filter').style.display = 'none';
+      document.getElementById('perm-panel').classList.remove('show');
+      document.getElementById('pager').innerHTML = '';
+      const c = document.getElementById('content');
+      c.innerHTML = `<div class="api-doc">
+<h2>GET /api/judgement</h2>
+<p>获取 judgement 记录。</p>
+<table><thead><tr><th>参数</th><th>类型</th><th>默认值</th><th>说明</th></tr></thead><tbody>
+<tr><td><code>page</code></td><td>int</td><td>1</td><td>页码</td></tr>
+<tr><td><code>limit</code></td><td>int</td><td>50</td><td>每页条数（最大 500）</td></tr>
+<tr><td><code>uid</code></td><td>int</td><td>—</td><td>按用户 UID 精确筛选</td></tr>
+<tr><td><code>name</code></td><td>string</td><td>—</td><td>按用户名模糊筛选</td></tr>
+<tr><td><code>rev_perm</code></td><td>int[]</td><td>—</td><td>按移除的权限值筛选（逗号分隔，AND 逻辑）</td></tr>
+<tr><td><code>add_perm</code></td><td>int[]</td><td>—</td><td>按添加的权限值筛选（逗号分隔，AND 逻辑）</td></tr>
+</tbody></table>
+<h2>GET /api/logs</h2>
+<p>获取抓取日志。</p>
+<table><thead><tr><th>参数</th><th>类型</th><th>默认值</th><th>说明</th></tr></thead><tbody>
+<tr><td><code>page</code></td><td>int</td><td>1</td><td>页码</td></tr>
+<tr><td><code>limit</code></td><td>int</td><td>50</td><td>每页条数（最大 500）</td></tr>
+</tbody></table>
+
+<h2>GET /api/stats</h2>
+<p>获取统计信息（总记录数、总抓取次数）。</p>
+</div>`;
+    }
+
+    function loadB() {
+      document.getElementById('j-filter').style.display = 'none';
+      document.getElementById('l-filter').style.display = 'none';
+      document.getElementById('perm-panel').classList.remove('show');
+      document.getElementById('pager').innerHTML = '';
+      const c = document.getElementById('content');
+      c.innerHTML = `<div class="api-doc">
+<h2>关于</h2>
+<p>@quanac-lcx, Luogu-Saver.</p>
+<p>GitHub: <code>quanac-lcx/luogu-judgement-saver</code></p>
+<h2>鸣谢</h2>
+<p>GitHub: <code>oi-zone/luogu-archive</code></p>
+</div>`;
+    }
+
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    init();
+  </script>
+</body>
+
+</html>

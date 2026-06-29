@@ -1,0 +1,247 @@
+*,
+:after,
+:before {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box
+}
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    color: #222;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px
+}
+
+h1 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 4px
+}
+
+.sub {
+    color: #888;
+    font-size: .85rem;
+    margin-bottom: 20px
+}
+
+nav {
+    margin-bottom: 16px
+}
+
+nav a {
+    color: #222;
+    text-decoration: none;
+    margin-right: 16px;
+    font-size: .9rem
+}
+
+nav a:hover {
+    text-decoration: underline
+}
+
+nav a.on {
+    font-weight: 600
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .88rem
+}
+
+td,
+th {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid #eee
+}
+
+th {
+    font-weight: 600;
+    color: #666;
+    font-size: .8rem
+}
+
+tr:hover {
+    background: #fafafa
+}
+
+td.uid {
+    font-weight: 600;
+    font-family: monospace
+}
+
+td.reason {
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap
+}
+
+td a {
+    color: inherit;
+    text-decoration: none
+}
+
+td a:hover {
+    text-decoration: underline
+}
+
+td.time {
+    color: #888;
+    white-space: nowrap;
+    font-size: .8rem
+}
+
+.perm {
+    font-family: monospace;
+    font-size: .8rem
+}
+
+.perm-add {
+    color: #168f16
+}
+
+.perm-rev {
+    color: #c00
+}
+
+.foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    font-size: .85rem
+}
+
+.foot a {
+    color: #222;
+    text-decoration: none;
+    padding: 4px 10px
+}
+
+.foot a:hover {
+    text-decoration: underline
+}
+
+.foot span {
+    color: #888
+}
+
+.meta {
+    color: #888;
+    font-size: .85rem;
+    margin-bottom: 12px
+}
+
+.filter {
+    margin-bottom: 12px;
+    display: flex;
+    gap: 8px;
+    align-items: center
+}
+
+.filter input {
+    border: 1px solid #ccc;
+    padding: 4px 8px;
+    font-size: .85rem;
+    width: 140px
+}
+
+.filter button {
+    border: 1px solid #ccc;
+    background: #f5f5f5;
+    padding: 4px 12px;
+    font-size: .85rem;
+    cursor: pointer
+}
+
+.filter button:hover {
+    background: #e8e8e8
+}
+
+.empty,
+.loading {
+    text-align: center;
+    padding: 60px 0;
+    color: #aaa
+}
+
+.api-doc h2 {
+    font-size: 1.05rem;
+    margin: 24px 0 8px
+}
+
+.api-doc h2:first-child {
+    margin-top: 0
+}
+
+.api-doc p {
+    margin: 8px 0;
+    font-size: .85rem;
+    color: #555
+}
+
+.api-doc table {
+    margin: 8px 0 16px
+}
+
+.api-doc code {
+    background: #f0f0f0;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: .82rem
+}
+
+.api-doc pre {
+    background: #f8f8f8;
+    padding: 14px;
+    overflow: auto;
+    font-size: .8rem;
+    line-height: 1.5;
+    border: 1px solid #eee
+}
+
+td.avatar img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    vertical-align: middle
+}
+
+.perm-panel {
+    display: none;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 12px;
+    padding: 10px;
+    background: #fafafa;
+    border: 1px solid #eee
+}
+
+.perm-panel.show {
+    display: flex
+}
+
+.perm-col {
+    min-width: 140px
+}
+
+.perm-col b {
+    display: block;
+    margin-bottom: 4px;
+    font-size: .85rem
+}
+
+#perm-toggle:hover {
+    background: #e8e8e8
+}
+
+footer {
+    text-align: center;
+    margin-top: 40px;
+    color: #ccc;
+    font-size: .75rem
+}
