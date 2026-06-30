@@ -1,6 +1,5 @@
 const express = require('express');
 const path = require('path');
-const fs = require('fs');
 const {
   getJudgementRecords,
   getJudgementCount,
@@ -31,10 +30,11 @@ app.get('/api/judgement', (req, res) => {
     const offset = (page - 1) * limit;
 
     const filters = {};
-    if (req.query.uid) filters.uid = parseInt(req.query.uid);
+    if (req.query.uid) filters.uid = req.query.uid.trim();
     if (req.query.name) filters.name = req.query.name.trim();
     if (req.query.rev_perm) filters.rev_perm = req.query.rev_perm.split(',').map(Number).filter(v => v);
     if (req.query.add_perm) filters.add_perm = req.query.add_perm.split(',').map(Number).filter(v => v);
+    if (req.query.no_perm === '1') filters.no_perm = true;
 
     const total = getJudgementCount(filters);
     const records = getJudgementRecords(limit, offset, filters);

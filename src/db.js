@@ -117,13 +117,6 @@ function insertJudgementRecord(record, fetchLogId) {
 }
 
 /**
- * 批量插入后保存
- */
-function saveAfterBatch() {
-  saveDatabase();
-}
-
-/**
  * 获取抓取日志（倒序）
  */
 function getFetchLogs(limit = 100, offset = 0) {
@@ -140,33 +133,46 @@ function getFetchLogs(limit = 100, offset = 0) {
 }
 
 /**
- * 获取 judgement 记录（倒序，可选按 uid 筛选）
+ * 构建 WHERE 子句及参数（用于 judgement_records 筛选）
+ * @param {string} [tableAlias] - 表别名（如 'jr'），不传则不加前缀
  */
-function getJudgementRecords(limit = 100, offset = 0, filters = {}) {
-  const { uid, name, rev_perm, add_perm } = filters;
+function buildWhereClause(filters, tableAlias = '') {
+  const { uid, name, rev_perm, add_perm, no_perm } = filters;
   const conditions = [];
   const params = [];
+  const col = (c) => tableAlias ? `${tableAlias}.${c}` : c;
 
   if (uid) {
-    conditions.push('jr.uid = ?');
-    params.push(uid);
+    conditions.push(`CAST(${col('uid')} AS TEXT) LIKE ?`);
+    params.push(`%${uid}%`);
   }
   if (name) {
-    conditions.push('jr.name LIKE ?');
+    conditions.push(`${col('name')} LIKE ?`);
     params.push(`%${name}%`);
   }
+  if (no_perm) {
+    conditions.push(`${col('revoked_permission')} = 0 AND ${col('added_permission')} = 0`);
+  }
   if (rev_perm && rev_perm.length) {
-    const ands = rev_perm.map(() => 'jr.revoked_permission & ?');
+    const ands = rev_perm.map(() => `${col('revoked_permission')} & ?`);
     conditions.push('(' + ands.join(' AND ') + ')');
-    rev_perm.forEach(v => params.push(v));
+    rev_perm.forEach(v => params.push(Number(v)));
   }
   if (add_perm && add_perm.length) {
-    const ands = add_perm.map(() => 'jr.added_permission & ?');
+    const ands = add_perm.map(() => `${col('added_permission')} & ?`);
     conditions.push('(' + ands.join(' AND ') + ')');
-    add_perm.forEach(v => params.push(v));
+    add_perm.forEach(v => params.push(Number(v)));
   }
 
   const where = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
+  return { where, params };
+}
+
+/**
+ * 获取 judgement 记录（倒序，可选筛选）
+ */
+function getJudgementRecords(limit = 100, offset = 0, filters = {}) {
+  const { where, params } = buildWhereClause(filters, 'jr');
   const sql = `SELECT jr.*, fl.fetched_at as log_fetched_at
        FROM judgement_records jr
        LEFT JOIN fetch_logs fl ON jr.fetch_log_id = fl.id
@@ -189,30 +195,7 @@ function getJudgementRecords(limit = 100, offset = 0, filters = {}) {
  * 获取 judgement 记录总数
  */
 function getJudgementCount(filters = {}) {
-  const { uid, name, rev_perm, add_perm } = filters;
-  const conditions = [];
-  const params = [];
-
-  if (uid) {
-    conditions.push('uid = ?');
-    params.push(uid);
-  }
-  if (name) {
-    conditions.push('name LIKE ?');
-    params.push(`%${name}%`);
-  }
-  if (rev_perm && rev_perm.length) {
-    const ands = rev_perm.map(() => 'revoked_permission & ?');
-    conditions.push('(' + ands.join(' AND ') + ')');
-    rev_perm.forEach(v => params.push(v));
-  }
-  if (add_perm && add_perm.length) {
-    const ands = add_perm.map(() => 'added_permission & ?');
-    conditions.push('(' + ands.join(' AND ') + ')');
-    add_perm.forEach(v => params.push(v));
-  }
-
-  const where = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
+  const { where, params } = buildWhereClause(filters);
   const stmt = db.prepare(`SELECT COUNT(*) as count FROM judgement_records ${where}`);
   stmt.bind(params);
   let count = 0;
@@ -238,7 +221,7 @@ function getFetchLogCount() {
 
 module.exports = {
   initDatabase,
-  saveAfterBatch,
+  saveDatabase,
   insertFetchLog,
   insertJudgementRecord,
   getFetchLogs,

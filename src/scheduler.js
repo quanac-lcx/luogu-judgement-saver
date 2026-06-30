@@ -1,6 +1,6 @@
 const cron = require('node-cron');
 const { fetchJudgements } = require('./fetcher');
-const { insertFetchLog, insertJudgementRecord, saveAfterBatch } = require('./db');
+const { insertFetchLog, insertJudgementRecord, saveDatabase } = require('./db');
 
 /**
  * 执行一次数据抓取并保存到数据库
@@ -39,7 +39,7 @@ async function runFetch() {
         }
 
         // 批量插入后统一保存
-        saveAfterBatch();
+        saveDatabase();
 
         const elapsed = Date.now() - startTime;
         console.log(`[${new Date().toISOString()}] 抓取完成: API 返回 ${logs.length} 条, 新增 ${newCount} 条, 跳过重复 ${skippedCount} 条, 耗时 ${elapsed}ms`);
@@ -53,10 +53,9 @@ async function runFetch() {
 }
 
 /**
- * 启动定时任务（每1分钟执行一次）
+ * 启动定时任务（每20分钟执行一次）
  */
 function startScheduler() {
-    // 每20分钟运行
     const task = cron.schedule('*/20 * * * *', async () => {
         await runFetch();
     });

@@ -1,4 +1,5 @@
 const https = require('https');
+const zlib = require('zlib');
 
 const JUDGEMENT_URL = 'https://www.luogu.com.cn/judgement';
 
@@ -28,20 +29,15 @@ function fetchJudgements() {
 
         const req = https.request(options, (res) => {
             let rawData = '';
-            const chunks = [];
 
-            // 处理可能的压缩响应
             const encoding = res.headers['content-encoding'];
             let stream = res;
 
             if (encoding === 'gzip') {
-                const zlib = require('zlib');
                 stream = res.pipe(zlib.createGunzip());
             } else if (encoding === 'deflate') {
-                const zlib = require('zlib');
                 stream = res.pipe(zlib.createInflate());
             } else if (encoding === 'br') {
-                const zlib = require('zlib');
                 stream = res.pipe(zlib.createBrotliDecompress());
             }
 

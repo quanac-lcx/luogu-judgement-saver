@@ -9,7 +9,7 @@
 body {
     font-family: system-ui, -apple-system, sans-serif;
     color: #222;
-    max-width: 960px;
+    max-width: 1100px;
     margin: 0 auto;
     padding: 20px
 }
@@ -235,7 +235,16 @@ td.avatar img {
     font-size: .85rem
 }
 
-#perm-toggle:hover {
+.toggle-btn {
+    font-size: .85rem;
+    color: #888;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid #ccc;
+    padding: 4px 8px
+}
+
+.toggle-btn:hover {
     background: #e8e8e8
 }
 
@@ -244,4 +253,93 @@ footer {
     margin-top: 40px;
     color: #ccc;
     font-size: .75rem
+}
+
+@media(max-width:768px) {
+    body {
+        padding: 10px
+    }
+
+    h1 {
+        font-size: 1.05rem
+    }
+
+    .sub {
+        font-size: .78rem;
+        margin-bottom: 14px
+    }
+
+    nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 12px
+    }
+
+    nav a {
+        font-size: .82rem;
+        margin-right: 0
+    }
+
+    .filter {
+        flex-wrap: wrap;
+        gap: 6px
+    }
+
+    .filter input {
+        width: auto;
+        min-width: 60px;
+        max-width: 100px;
+        font-size: .8rem
+    }
+
+    .filter button {
+        font-size: .8rem;
+        padding: 4px 8px
+    }
+
+    .toggle-btn {
+        font-size: .78rem;
+        padding: 3px 6px
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        font-size: .8rem
+    }
+
+    td,
+    th {
+        padding: 6px 7px;
+        font-size: .78rem
+    }
+
+    td.reason {
+        max-width: 120px
+    }
+
+    td.time {
+        font-size: .75rem
+    }
+
+    .perm-panel {
+        flex-direction: column;
+        gap: 10px
+    }
+
+    .perm-col {
+        min-width: auto
+    }
+
+    .foot {
+        flex-direction: column;
+        gap: 6px;
+        align-items: flex-start;
+        font-size: .78rem
+    }
+
+    footer {
+        margin-top: 24px
+    }
 }
