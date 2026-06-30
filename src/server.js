@@ -10,9 +10,6 @@ const {
 const app = express();
 const PORT = process.env.PORT || 3457;
 
-// JSON 中间件
-app.use(express.json());
-
 // 静态文件服务（前端页面）
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
@@ -30,7 +27,7 @@ app.get('/api/judgement', (req, res) => {
     const offset = (page - 1) * limit;
 
     const filters = {};
-    if (req.query.uid) filters.uid = req.query.uid.trim();
+    if (req.query.uid) filters.uid = req.query.uid.split(',').map(v => Number(v.trim())).filter(v => v);
     if (req.query.name) filters.name = req.query.name.trim();
     if (req.query.rev_perm) filters.rev_perm = req.query.rev_perm.split(',').map(Number).filter(v => v);
     if (req.query.add_perm) filters.add_perm = req.query.add_perm.split(',').map(Number).filter(v => v);
@@ -149,4 +146,4 @@ function startServer() {
   });
 }
 
-module.exports = { startServer, app };
+module.exports = { startServer };

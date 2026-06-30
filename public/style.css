@@ -73,6 +73,14 @@ td.uid {
     font-family: monospace
 }
 
+td.uid a.uid-link {
+    cursor: pointer
+}
+
+td.uid a.uid-link:hover {
+    text-decoration: underline;
+}
+
 td.reason {
     max-width: 280px;
     overflow: hidden;
@@ -128,12 +136,6 @@ td.time {
 
 .foot span {
     color: #888
-}
-
-.meta {
-    color: #888;
-    font-size: .85rem;
-    margin-bottom: 12px
 }
 
 .filter {
@@ -195,15 +197,6 @@ td.time {
     font-size: .82rem
 }
 
-.api-doc pre {
-    background: #f8f8f8;
-    padding: 14px;
-    overflow: auto;
-    font-size: .8rem;
-    line-height: 1.5;
-    border: 1px solid #eee
-}
-
 td.avatar img {
     width: 28px;
     height: 28px;
@@ -253,6 +246,34 @@ footer {
     margin-top: 40px;
     color: #ccc;
     font-size: .75rem
+}
+
+#btn-top {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ccc;
+    color: #666;
+    background: #fafafa;
+    font-size: 1.1rem;
+    cursor: pointer;
+    visibility: hidden;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
+
+#btn-top.show {
+    opacity: 1;
+    visibility: visible
+}
+
+#btn-top:hover {
+    background: #f0f0f0;
+    color: #222
 }
 
 @media(max-width:768px) {

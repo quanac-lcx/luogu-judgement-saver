@@ -142,9 +142,10 @@ function buildWhereClause(filters, tableAlias = '') {
   const params = [];
   const col = (c) => tableAlias ? `${tableAlias}.${c}` : c;
 
-  if (uid) {
-    conditions.push(`CAST(${col('uid')} AS TEXT) LIKE ?`);
-    params.push(`%${uid}%`);
+  if (uid && uid.length) {
+    const placeholders = uid.map(() => '?').join(',');
+    conditions.push(`${col('uid')} IN (${placeholders})`);
+    uid.forEach(v => params.push(Number(v)));
   }
   if (name) {
     conditions.push(`${col('name')} LIKE ?`);

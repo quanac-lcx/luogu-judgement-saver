@@ -68,4 +68,4 @@ function startScheduler() {
     return task;
 }
 
-module.exports = { startScheduler, runFetch };
+module.exports = { startScheduler };
